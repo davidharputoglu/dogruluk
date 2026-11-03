@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Chantiers</h1>
+<form method="post" action="/sites" class="inline">
+  <input name="name" placeholder="Nom du chantier" required><button>Ajouter</button>
+</form>
+<table>
+  <tr><th>Chantier</th><th>Factures</th><th>Total achats HT</th><th>Total écarts HT</th></tr>
+  {% for s in sites %}
+  <tr><td>{{ s.site }}</td><td>{{ s.nb_factures }}</td>
+      <td>{{ '%.2f'|format(s.total_achats_ht) }} €</td>
+      <td class="{{ 'neg' if s.total_ecart_ht > 0 else '' }}">{{ '%.2f'|format(s.total_ecart_ht) }} €</td></tr>
+  {% else %}<tr><td colspan="4">Aucun chantier.</td></tr>{% endfor %}
+</table>
+<a class="btn" href="/export/chantiers">Exporter (.xlsx)</a>
+{% endblock %}

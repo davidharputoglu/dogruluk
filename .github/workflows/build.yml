@@ -1,0 +1,175 @@
+name: build-packages
+
+# Doğruluk v0.1 — David HARPUTOGLU (aidé par IA)
+# Construit à chaque tag v* :
+#   Windows  : installeur .exe (Inno Setup) + version portable .zip
+#   Linux    : paquets .deb / .rpm, AppImage, script .sh, code source
+#   Docker   : image multi-arch amd64 / arm/v7 (Raspberry Pi 3) / arm64
+#              poussée sur ghcr.io + .tar.gz téléchargeables (Portainer, Podman, NAS)
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  VERSION: "0.1"            # version figée à 0.1 jusqu'à demande explicite de l'éditeur
+
+jobs:
+  # ---------------- 1. Linux : deb, rpm, AppImage, sources ---------------- #
+  linux:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        arch: [amd64, arm64, armhf]     # armhf = Raspberry Pi 3 (ARMv7)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Préparer l'arborescence de paquet
+        run: |
+          set -e
+          mkdir -p pkgroot/opt/dogruluk pkgroot/usr/bin
+          rsync -a --exclude '.git' --exclude 'data' --exclude 'exports' ./ pkgroot/opt/dogruluk/
+          printf '#!/bin/sh\ncd /opt/dogruluk && exec python3 -m uvicorn app.main:app --host "${VDF_HOST:-0.0.0.0}" --port "${VDF_PORT:-8000}"\n' > pkgroot/usr/bin/dogruluk
+          chmod +x pkgroot/usr/bin/dogruluk
+
+      - name: Paquet .deb (${{ matrix.arch }})
+        run: |
+          set -e
+          D=build-deb; mkdir -p \$D/DEBIAN
+          cp -r pkgroot \$D/
+          printf 'Package: dogruluk\nVersion: %s\nSection: utils\nPriority: optional\nArchitecture: %s\nDepends: python3 (>=3.9), python3-venv, git\nMaintainer: David HARPUTOGLU <kasparof57@gmail.com>\nHomepage: https://github.com/davidharputoglu/dogruluk\nDescription: Verificateur de devis et factures, tous fournisseurs\n  Dogruluk verifie ligne a ligne les factures contre vos listes de prix negociees, calcule les ecarts ((prix facture - prix convenu) x quantite), met de cote les articles sans prix de reference et recapitule les achats par chantier. Credits : David HARPUTOGLU - aide par IA.\n' "\$VERSION" "${{ matrix.arch }}" > \$D/DEBIAN/control
+          dpkg-deb --build --root-owner-group \$D "dogruluk_${VERSION}_${{ matrix.arch }}.deb"
+
+      - name: Paquet .rpm (amd64)
+        if: matrix.arch == 'amd64'
+        run: |
+          sudo apt-get update && sudo apt-get install -y ruby ruby-dev rpm
+          sudo gem install fpm
+          fpm -s dir -t rpm -n dogruluk -v "\$VERSION" -a x86_64 \
+              --url "https://github.com/davidharputoglu/dogruluk" \
+              --maintainer "David HARPUTOGLU <kasparof57@gmail.com>" \
+              -d "python3 >= 3.9" pkgroot=/
+          ls -la *.rpm
+
+      - name: AppImage (amd64)
+        if: matrix.arch == 'amd64'
+        run: |
+          set -e
+          wget -qO appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool
+          mkdir -p AppDir/usr
+          cp -r pkgroot/opt AppDir/usr/opt
+          printf '#!/bin/sh\nHERE="$(dirname "$(readlink -f "$0")")"\nexec python3 -m uvicorn app.main:app --app-dir "\$HERE/usr/opt/dogruluk" --host 127.0.0.1 --port "${VDF_PORT:-8000}"\n' > AppDir/AppRun
+          chmod +x AppDir/AppRun
+          printf '[Desktop Entry]\nName=Doğruluk\nExec=AppRun\nType=Application\n' > AppDir/dogruluk.desktop
+          ARCH=x86_64 ./appimagetool --appimage-extract-and-run AppDir "dogruluk-${VERSION}.AppImage"
+
+      - name: Archive du code source
+        if: matrix.arch == 'amd64'
+        run: tar czf dogruluk-${VERSION}-source.tar.gz --exclude=.git --exclude=data --exclude=exports .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-${{ matrix.arch }}
+          path: |
+            dogruluk_*.deb
+            *.rpm
+            *.AppImage
+            *-source.tar.gz
+          if-no-files-found: warn
+
+  # ---------------- 2. Windows : setup.exe + portable.zip ------------------ #
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Zip portable (lancer scripts/run_windows.bat)
+        shell: pwsh
+        run: Compress-Archive -Path * -DestinationPath dogruluk-$env:VERSION-windows-portable.zip -Force
+
+      - name: Installeur .exe (Inno Setup)
+        shell: cmd
+        run: iscc installer\windows\dogruluk.iss
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: |
+            dogruluk-*-windows-portable.zip
+            installer/windows/Output/*.exe
+          if-no-files-found: warn
+
+  # ---------------- 3. Docker multi-arch (amd64/armv7/arm64) --------------- #
+  docker:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push multi-arch
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm/v7,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ env.VERSION }}
+            ghcr.io/${{ github.repository }}:latest
+
+      - name: Export des images en .tar.gz (import offline NAS/Portainer/Podman)
+        run: |
+          set -e
+          for P in "amd64:amd64" "arm-v7:arm/v7" "arm64:arm64"; do
+            N="${P%%:*}"; A="${P##*:}"
+            docker pull --platform linux/\$A ghcr.io/${{ github.repository }}:${VERSION} >/dev/null
+            IMG=$(docker create --platform linux/\$A ghcr.io/${{ github.repository }}:${VERSION})
+            docker export \$IMG > dogruluk-${VERSION}_linux-\$N.tar
+            docker rm \$IMG >/dev/null
+            gzip -f dogruluk-${VERSION}_linux-\$N.tar
+          done
+          ls -la dogruluk_*.tar.gz
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: docker-images
+          path: dogruluk_*.tar.gz
+
+  # ---------------- 4. Release GitHub -------------------------------------- #
+  release:
+    needs: [linux, windows, docker]
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            *.deb
+            *.rpm
+            *.AppImage
+            *-source.tar.gz
+            *windows-portable.zip
+            *.exe
+            dogruluk_*.tar.gz
+          body: |
+            ## Doğruluk v${{ env.VERSION }}
+            Vérificateur de devis & factures, tous fournisseurs — Excel/CSV, PDF, Factur-X, UBL, CII.
+            Éditeur : **David HARPUTOGLU — aidé par IA** · Contact : kasparof57@gmail.com
+            Version figée à 0.1 (décision éditeur).
+
+            - Linux/RPi 3+ : `sudo bash scripts/install.sh` (ou .deb / .rpm / AppImage ci-joints)
+            - Windows : installeur `.exe` ou version portable `.zip` (double-cliquer `scripts/run_windows.bat`)
+            - Docker / Portainer / Podman / NAS : `docker pull ghcr.io/davidharputoglu/dogruluk:0.1`
+              ou importer le `dogruluk_*.tar.gz` de votre architecture (amd64 / arm-v7 RPi3 / arm64)

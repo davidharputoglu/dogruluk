@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ t("legal_mentions") }} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{{ t("legal_title") }}</h1>
+
+<section>
+  <h2>1. {{ t("legal_editor") }}</h2>
+  <p>{{ t("lb_edited_by", {"name": EDITOR_NAME}) }}<br>
+     {{ t("lb_contact", {"email": EDITOR_EMAIL}) }}<br>
+     {{ t("lb_hosting") }}</p>
+</section>
+
+<section>
+  <h2>2. {{ t("legal_object") }}</h2>
+  <p>{{ t("lb_object") }}</p>
+</section>
+
+<section>
+  <h2>3. {{ t("legal_ip") }}</h2>
+  <p>{{ t("lb_ip", {"license": LICENSE, "year": YEAR, "name": EDITOR_NAME}) }}</p>
+</section>
+
+<section>
+  <h2>4. {{ t("legal_warranty") }}</h2>
+  <p>{{ t("lb_warranty") }}</p>
+  <p class="warnbox">{{ t("lb_no_legal_advice") }}</p>
+</section>
+
+<section>
+  <h2>5. {{ t("legal_liability") }}</h2>
+  <p>{{ t("lb_liability") }}</p>
+</section>
+
+<section>
+  <h2>6. {{ t("privacy") }}</h2>
+  <p>{{ t("lb_privacy") }}</p>
+  <ul>
+    <li>{{ t("lb_data_local") }}</li>
+    <li>{{ t("lb_data_none_sent") }}</li>
+    <li>{{ t("lb_rgpd") }}</li>
+  </ul>
+</section>
+
+<section>
+  <h2>7. {{ t("legal_cookies") }}</h2>
+  <p>{{ t("lb_cookies") }}</p>
+</section>
+
+<section>
+  <h2>8. {{ t("legal_einvoice") }}</h2>
+  <p>{{ t("lb_einvoice") }}</p>
+</section>
+
+<section>
+  <h2>9. {{ t("legal_applicable") }}</h2>
+  <p>{{ t("lb_applicable") }}</p>
+</section>
+
+<p class="hint">{{ t("lb_last_update", {"date": "2026-11-05"}) }} —
+<a href="/confidentialite">{{ t("privacy") }}</a> ·
+<a href="/licence">{{ t("license") }}</a></p>
+{% endblock %}

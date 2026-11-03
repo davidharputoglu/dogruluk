@@ -1,0 +1,35 @@
+Licence Doğruluk 1.0
+Copyright (c) 2026 David HARPUTOGLU — aidé par IA (kasparof57@gmail.com)
+
+Permission est accordée, gratuitement, à toute personne obtenant une copie
+de ce logiciel et des fichiers associés (« Logiciel »), d'utiliser, copier,
+modifier et distribuer le Logiciel pour ses besoins professionnels internes,
+sous réserve des conditions suivantes :
+
+1. La mention de crédit « David HARPUTOGLU — aidé par IA » et le présent
+   avis de copyright doivent être conservés dans toutes les copies ou
+   portions substantielles du Logiciel, ainsi que dans l'interface (pied de
+   page) et les exports générés.
+
+2. La redistribution commerciale, la revente, ou la distribution du Logiciel
+   lui-même sous un autre nom ou marque, sans accord écrit préalable de
+   l'éditeur, sont interdites.
+
+3. Les données importées par l'utilisateur (listes de prix, factures, devis,
+   noms de chantiers) restent la propriété exclusive de celui-ci ; l'éditeur
+   n'y accède jamais (logiciel exécuté intégralement en local).
+
+4. Le calcul des écarts ((prix facturé − prix convenu) × quantité) et les
+   récapitulatifs produits sont indicatifs. Toute réclamation auprès d'un
+   fournisseur doit être validée par les vérifications contractuelles de
+   l'utilisateur. LE LOGICIEL EST FOURNI « EN L'ÉTAT », SANS GARANTIE D'AUCUNE
+   ESPÈCE, EXPLICITE OU IMPLICITE. L'ÉDITEUR NE PEUT ÊTRE TENU RESPONSABLE DES
+   DOMMAGES INDIRECTS POUVANT RÉSULTER DE SON UTILISATION.
+
+5. « Point.P » et les autres marques de fournisseurs citées appartiennent à
+   leurs titulaires respectifs ; ce projet n'est affilié, ni sponsorisé, ni
+   cautionné par eux.
+
+6. Le présent avis est régi par le droit français. À défaut d'accord amiable,
+   compétence est attribuée aux tribunaux du ressort de la Cour d'appel de
+   Metz, France.
