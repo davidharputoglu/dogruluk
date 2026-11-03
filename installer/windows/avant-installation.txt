@@ -1,0 +1,23 @@
+Doğruluk v0.1 — Vérificateur de devis et factures
+
+Éditeur : David HARPUTOGLU (aidé par IA)
+Contact : kasparof57@gmail.com
+Dépôt   : https://github.com/davidharputoglu/dogruluk
+
+Cet assistant d'installation est personnalisé :
+ - Langue de l'installeur : choisissez-la sur la première page
+   (français, anglais, turc, allemand, italien, espagnol, portugais,
+   arabe, kazakh, ouzbek).
+ - Répertoire : vous pouvez modifier le dossier de destination
+   (par défaut C:\Program Files\Doğruluk).
+ - Composants : application seule, fichiers d'exemple, environnement
+   Python dédié (.venv), téléchargement de Python si absent.
+
+Après installation, Doğruluk démarre un petit serveur local et ouvre
+votre navigateur sur http://localhost:8000. Aucune donnée n'est envoyée
+sur Internet : tout reste sur votre machine.
+
+IMPORTANT : les calculs d'écarts sont indicatifs ; vérifiez-les avant
+toute réclamation (avoir fournisseur). Licence et mentions légales
+complètes : LICENSE et NOTICE installés avec l'application, et
+https://github.com/davidharputoglu/dogruluk

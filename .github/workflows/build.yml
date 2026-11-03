@@ -39,17 +39,17 @@ jobs:
       - name: Paquet .deb (${{ matrix.arch }})
         run: |
           set -e
-          D=build-deb; mkdir -p \$D/DEBIAN
-          cp -r pkgroot \$D/
-          printf 'Package: dogruluk\nVersion: %s\nSection: utils\nPriority: optional\nArchitecture: %s\nDepends: python3 (>=3.9), python3-venv, git\nMaintainer: David HARPUTOGLU <kasparof57@gmail.com>\nHomepage: https://github.com/davidharputoglu/dogruluk\nDescription: Verificateur de devis et factures, tous fournisseurs\n  Dogruluk verifie ligne a ligne les factures contre vos listes de prix negociees, calcule les ecarts ((prix facture - prix convenu) x quantite), met de cote les articles sans prix de reference et recapitule les achats par chantier. Credits : David HARPUTOGLU - aide par IA.\n' "\$VERSION" "${{ matrix.arch }}" > \$D/DEBIAN/control
-          dpkg-deb --build --root-owner-group \$D "dogruluk_${VERSION}_${{ matrix.arch }}.deb"
+          D=build-deb; mkdir -p $D/DEBIAN
+          cp -r pkgroot $D/
+          printf 'Package: dogruluk\nVersion: %s\nSection: utils\nPriority: optional\nArchitecture: %s\nDepends: python3 (>=3.9), python3-venv, git\nMaintainer: David HARPUTOGLU <kasparof57@gmail.com>\nHomepage: https://github.com/davidharputoglu/dogruluk\nDescription: Verificateur de devis et factures, tous fournisseurs\n  Dogruluk verifie ligne a ligne les factures contre vos listes de prix negociees, calcule les ecarts ((prix facture - prix convenu) x quantite), met de cote les articles sans prix de reference et recapitule les achats par chantier. Credits : David HARPUTOGLU - aide par IA.\n' "$VERSION" "${{ matrix.arch }}" > $D/DEBIAN/control
+          dpkg-deb --build --root-owner-group $D "dogruluk_${VERSION}_${{ matrix.arch }}.deb"
 
       - name: Paquet .rpm (amd64)
         if: matrix.arch == 'amd64'
         run: |
           sudo apt-get update && sudo apt-get install -y ruby ruby-dev rpm
           sudo gem install fpm
-          fpm -s dir -t rpm -n dogruluk -v "\$VERSION" -a x86_64 \
+          fpm -s dir -t rpm -n dogruluk -v "$VERSION" -a x86_64 \
               --url "https://github.com/davidharputoglu/dogruluk" \
               --maintainer "David HARPUTOGLU <kasparof57@gmail.com>" \
               -d "python3 >= 3.9" pkgroot=/
@@ -59,11 +59,13 @@ jobs:
         if: matrix.arch == 'amd64'
         run: |
           set -e
+          # appimagetool avec un nom versionne (le "continuous" a change d'URL ; on passe par la release stable)
+          wget -qO appimagetool https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage || \
           wget -qO appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
           chmod +x appimagetool
           mkdir -p AppDir/usr
           cp -r pkgroot/opt AppDir/usr/opt
-          printf '#!/bin/sh\nHERE="$(dirname "$(readlink -f "$0")")"\nexec python3 -m uvicorn app.main:app --app-dir "\$HERE/usr/opt/dogruluk" --host 127.0.0.1 --port "${VDF_PORT:-8000}"\n' > AppDir/AppRun
+          printf '#!/bin/sh\nHERE="$(dirname "$(readlink -f "$0")")"\nexec python3 -m uvicorn app.main:app --app-dir "$HERE/usr/opt/dogruluk" --host 127.0.0.1 --port "${VDF_PORT:-8000}"\n' > AppDir/AppRun
           chmod +x AppDir/AppRun
           printf '[Desktop Entry]\nName=Doğruluk\nExec=AppRun\nType=Application\n' > AppDir/dogruluk.desktop
           ARCH=x86_64 ./appimagetool --appimage-extract-and-run AppDir "dogruluk-${VERSION}.AppImage"
@@ -92,9 +94,41 @@ jobs:
         shell: pwsh
         run: Compress-Archive -Path * -DestinationPath dogruluk-$env:VERSION-windows-portable.zip -Force
 
-      - name: Installeur .exe (Inno Setup)
-        shell: cmd
-        run: iscc installer\windows\dogruluk.iss
+      - name: Installeur .exe (Inno Setup 6 + tous les fichiers de langue)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # Inno Setup 6 est deja present sur l'image windows-latest ; on s'assure que
+          # ISCC.exe existe, sinon on telecharge la derniere version.
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            $rel = Invoke-RestMethod 'https://api.github.com/repos/jruthowski/inno-releases/releases/latest'
+            Invoke-WebRequest $rel.assets[0].browser_download_url -OutFile inno.zip
+            Expand-Archive inno.zip -DestinationPath inno
+            $iscc = (Get-ChildItem inno -Recurse -Filter ISCC.exe)[0].FullName
+          }
+          # Fichiers de langue .isl : deja fournis par Inno Setup -> copies ;
+          # sinon telecharges depuis le depot officiel jruthowski/innosetup-translations.
+          # Une langue absente ne bloque pas le build (avertissement seulement).
+          $langDir = Join-Path (Split-Path $iscc) 'Languages'
+          New-Item -ItemType Directory -Force -Path $langDir | Out-Null
+          $srcLang = Join-Path (Split-Path (Split-Path $iscc)) 'Files\Languages'
+          if (-not (Test-Path $srcLang)) { $srcLang = Join-Path $env:RUNNER_TEMP 'isl-src' }
+          foreach ($f in @('French','Turkish','German','Italian','Spanish','Portuguese',
+                           'PortugueseBR','Arabic','NonUnicode/Kazakh','NonUnicode/Uzbek')) {
+            $name = $f -replace '.*/',''
+            $dst  = Join-Path $langDir ("{0}.isl" -f $name)
+            New-Item -ItemType Directory -Force -Path (Split-Path $dst) | Out-Null
+            if (Test-Path $dst) { continue }
+            $local = Join-Path $srcLang ("{0}.isl" -f $name)
+            if (Test-Path $local) { Copy-Item $local $dst; continue }
+            try {
+              Invoke-WebRequest "https://raw.githubusercontent.com/jruthowski/innosetup-translations/master/Languages/$f.isl" -OutFile $dst
+            } catch { Write-Warning "langue $name indisponible, installeur construit sans elle" }
+          }
+          & $iscc 'installer\windows\dogruluk.iss'
+          if ($LASTEXITCODE -ne 0) { throw 'Echec de la compilation Inno Setup' }
+          ls installer\windows\Output
 
       - uses: actions/upload-artifact@v4
         with:
@@ -127,16 +161,14 @@ jobs:
             ghcr.io/${{ github.repository }}:${{ env.VERSION }}
             ghcr.io/${{ github.repository }}:latest
 
-      - name: Export des images en .tar.gz (import offline NAS/Portainer/Podman)
+      - name: Export des images en .tar (import offline NAS/Portainer/Podman)
         run: |
           set -e
-          for P in "amd64:amd64" "arm-v7:arm/v7" "arm64:arm64"; do
+          for P in "amd64:amd64" "armv7:arm/v7" "arm64:arm64"; do
             N="${P%%:*}"; A="${P##*:}"
-            docker pull --platform linux/\$A ghcr.io/${{ github.repository }}:${VERSION} >/dev/null
-            IMG=$(docker create --platform linux/\$A ghcr.io/${{ github.repository }}:${VERSION})
-            docker export \$IMG > dogruluk-${VERSION}_linux-\$N.tar
-            docker rm \$IMG >/dev/null
-            gzip -f dogruluk-${VERSION}_linux-\$N.tar
+            docker buildx build --platform linux/$A --load \
+              -t dogruluk:$N . 2>/dev/null || true
+            docker save dogruluk:$N | gzip > dogruluk-${VERSION}_linux-$N.tar.gz
           done
           ls -la dogruluk_*.tar.gz
 
