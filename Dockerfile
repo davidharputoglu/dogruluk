@@ -6,8 +6,13 @@ FROM python:3.12-slim
 WORKDIR /srv/app
 
 # sqlite3 est dans la stdlib Python ; aucun paquet lourd -> image petite pour RPi3
+# build-essential : requis pour compiler les extensions C (uvloop, httptools)
+# sur arm/v7 et arm64 via QEMU ; retiré après build pour garder une image légère
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential \
+    && pip install --no-cache-dir -r requirements.txt \
+    && apt-get purge -y build-essential && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY app ./app
 
