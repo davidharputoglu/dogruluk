@@ -39,7 +39,10 @@ FEATURE_EMAIL_IMPORT = EDITION == "prive"      # a ajouter plus tard (boite mail
 FEATURE_WATCHED_FOLDER = EDITION == "prive"    # a ajouter plus tard (dossier surveille)
 FEATURE_PDF_EXPORT = True                      # export PDF des ecarts
 
-VERSION = "0.1.0"
+# Version figee a 0.1 jusqu'a demande explicite d'increment par l'utilisateur
+# (decision utilisateur 2026-11-04). Pour changer : modifier cette ligne ou
+# definir la variable d'environnement VDF_VERSION.
+VERSION = os.environ.get("VDF_VERSION", "0.1")
 
 # ---------------------------------------------------------------------------
 # Crédits / contact (modifiables via variables d'environnement)

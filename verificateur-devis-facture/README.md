@@ -4,6 +4,10 @@ Application autonome qui vérifie les factures/devis de **tous fournisseurs**
 (Point.P, etc.) par rapport à une **liste de prix négociés**, calcule les
 **écarts** et fait le **récapitulatif des achats par chantier**.
 
+> **Version : 0.1** — figée tant que le propriétaire du projet n'a pas demandé
+> explicitement de la changer (variable `VERSION` dans `app/config.py`,
+> surchargeable via `VDF_VERSION`). Édition unique **publique**.
+
 ## Crédits
 
 **David HARPUTOGLU** — aidé par IA — contact : kasparof57@gmail.com
