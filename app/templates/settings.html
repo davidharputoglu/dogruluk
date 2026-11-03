@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ t("nav_settings") }} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{{ t("nav_settings") }}</h1>
+
+<section>
+  <h2>{{ t("settings_general") }}</h2>
+  <form method="post" action="/parametres" class="grid-form">
+    <label>{{ t("set_app_name") }}
+      <input name="app_name" value="{{ s.app_name or '' }}" placeholder="{{ APP_NAME }}"></label>
+    <label>{{ t("set_language") }}
+      <select name="language">
+        {% for code, label in langs.items() %}
+        <option value="{{ code }}" {% if s.language == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select></label>
+    <label>{{ t("set_tolerance") }}
+      <input type="number" step="0.01" min="0" name="tolerance" value="{{ s.tolerance }}"></label>
+    <label>{{ t("set_currency") }}
+      <input name="currency" value="{{ s.currency }}" style="width:6em"></label>
+    <button>{{ t("save") }}</button>
+  </form>
+  <p class="hint">{{ t("settings_hint") }}</p>
+</section>
+
+<section>
+  <h2>{{ t("settings_legal") }}</h2>
+  <form method="post" action="/parametres" class="grid-form">
+    <label>{{ t("set_editor_name") }}
+      <input name="editor_name" value="{{ s.editor_name or AUTHOR_NAME }}"></label>
+    <label>{{ t("set_editor_email") }}
+      <input type="email" name="editor_email" value="{{ s.editor_email or AUTHOR_EMAIL }}"></label>
+    <button>{{ t("save") }}</button>
+  </form>
+  <p class="hint">{{ t("settings_legal_hint") }}</p>
+</section>
+{% endblock %}

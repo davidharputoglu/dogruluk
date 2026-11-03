@@ -1,0 +1,19 @@
+Doğruluk v0.1 — NOTICE
+Copyright © 2026 David HARPUTOGLU — aidé par IA — kasparof57@gmail.com
+Dépôt public : https://github.com/davidharputoglu/dogruluk
+
+Marques déposées de leurs propriétaires respectifs ; ce projet n'est
+affilié, sponsorisé ni cautionné par Point.P ou tout autre fournisseur.
+
+Bibliothèques tierces (versions minimales) :
+- FastAPI & StarAPI        licence MIT
+- Uvicorn                  licence BSD-3-Clause
+- Jinja2                   licence BSD-3-Clause
+- python-multipart         licence Apache-2.0
+- openpyxl                 licence MIT (LGPL-compatible usage)
+- xlsxwriter               licence BSD-2-Clause / Apache-2.0
+- pypdf                    licence BSD-3-Clause
+- SQLite (stdlib Python)   licence Public Domain
+
+Le crédit « David HARPUTOGLU — aidé par IA » doit être conservé dans
+l'interface, les exports et toute copie du logiciel (voir LICENSE).

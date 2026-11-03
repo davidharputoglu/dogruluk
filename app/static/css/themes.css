@@ -1,0 +1,105 @@
+/* ==========================================================================
+   Doğruluk — Thèmes d'interface (design tokens CSS)
+   Thème principal : turquoise. Autres : sombre, noir, personnalisable.
+   Le thème est sélectionné par <html data-theme="..."> et persiste via
+   localStorage. Les couleurs du thème "custom" sont injectées par JS
+   (--c1 / --c2) et mémorisées de la même façon.
+   ========================================================================== */
+
+:root,
+html[data-theme="turquoise"] {
+  --bg: #eef7f6;
+  --bg-elev: #ffffff;
+  --fg: #10332f;
+  --muted: #5d8480;
+  --accent: #0d9488;          /* turquoise */
+  --accent-strong: #0b7a70;
+  --accent-soft: #d5eeea;
+  --line: #d3e5e2;
+  --warn: #b30000;
+  --ok: #0b6e4f;
+  --row-ecart: #fdeeee;
+  --row-absent: #fdf6e3;
+  --header-bg: #ffffff;
+  --shadow: 0 1px 3px rgba(13, 148, 136, .12);
+}
+
+html[data-theme="dark"] {
+  --bg: #171d21;
+  --bg-elev: #212a2f;
+  --fg: #e6edf0;
+  --muted: #93a3ab;
+  --accent: #2dd4bf;
+  --accent-strong: #5eead4;
+  --accent-soft: #1e3a36;
+  --line: #33414a;
+  --warn: #ff8080;
+  --ok: #4ade80;
+  --row-ecart: #3a2426;
+  --row-absent: #3a3220;
+  --header-bg: #1d252a;
+  --shadow: 0 1px 3px rgba(0, 0, 0, .5);
+}
+
+html[data-theme="black"] {
+  --bg: #000000;
+  --bg-elev: #0d0d0d;
+  --fg: #f2f2f2;
+  --muted: #9a9a9a;
+  --accent: #14b8a6;
+  --accent-strong: #2dd4bf;
+  --accent-soft: #10201e;
+  --line: #262626;
+  --warn: #ff7b7b;
+  --ok: #34d399;
+  --row-ecart: #2b1113;
+  --row-absent: #2b2410;
+  --header-bg: #090909;
+  --shadow: none;
+}
+
+/* Personnalisé : base claire, colorée par --c1 (couleur principale)
+   et --c2 (couleur foncée pour le texte accentué), posées par le JS. */
+html[data-theme="custom"] {
+  --bg: color-mix(in srgb, var(--c1, #0d9488) 8%, #ffffff);
+  --bg-elev: #ffffff;
+  --fg: color-mix(in srgb, var(--c2, #0b3b36) 85%, #000000);
+  --muted: color-mix(in srgb, var(--c1, #0d9488) 45%, #444444);
+  --accent: var(--c1, #0d9488);
+  --accent-strong: var(--c2, #0b7a70);
+  --accent-soft: color-mix(in srgb, var(--c1, #0d9488) 15%, #ffffff);
+  --line: color-mix(in srgb, var(--c1, #0d9488) 22%, #dddddd);
+  --warn: #b30000;
+  --ok: var(--c2, #0b6e4f);
+  --row-ecart: #fdeeee;
+  --row-absent: #fdf6e3;
+  --header-bg: #ffffff;
+  --shadow: 0 1px 3px rgba(0, 0, 0, .10);
+}
+
+/* ---- Composants utilisant les tokens ---- */
+body { background: var(--bg); color: var(--fg); }
+header { background: var(--header-bg); border-bottom: 1px solid var(--line); box-shadow: var(--shadow); }
+.brand a { color: var(--accent-strong); }
+.tagline, .hint, .muted, footer { color: var(--muted); }
+nav a { color: var(--fg); }
+nav a:hover, nav a.active { color: var(--accent); }
+section, .card { background: var(--bg-elev); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.card .num { color: var(--fg); }
+.card.warn .num { color: var(--warn); }
+.card.ok .num { color: var(--ok); }
+th { background: var(--accent-soft); color: var(--muted); }
+th, td { border-bottom: 1px solid var(--line); }
+.row-ecart { background: var(--row-ecart); }
+.row-absent { background: var(--row-absent); }
+.neg { color: var(--warn); }
+button, .btn { background: var(--accent); color: #fff; }
+button:hover, .btn:hover { background: var(--accent-strong); }
+input, select { background: var(--bg-elev); color: var(--fg); border: 1px solid var(--line); }
+.badge { background: var(--accent-soft); color: var(--muted); }
+.warnbox { background: var(--row-absent); border: 1px solid var(--line); border-radius: 8px; padding: .6rem .8rem; }
+
+.theme-switcher { display: flex; gap: .35rem; align-items: center; margin-inline-start: auto; }
+.theme-switcher button { padding: .3rem .55rem; font-size: .8rem; border-radius: 999px;
+  background: var(--accent-soft); color: var(--fg); border: 1px solid var(--line); }
+.theme-switcher button[aria-pressed="true"] { background: var(--accent); color: #fff; }

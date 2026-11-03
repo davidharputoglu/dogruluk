@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Tableau de bord</h1>
+
+<div class="cards">
+  <div class="card"><div class="num">{{ stats.suppliers }}</div><div>Fournisseurs</div></div>
+  <div class="card"><div class="num">{{ stats.invoices }}</div><div>Factures / devis verifiés</div></div>
+  <div class="card"><div class="num">{{ stats.lines }}</div><div>Lignes contrôlées</div></div>
+  <div class="card warn"><div class="num">{{ stats.ecarts }}</div><div>Ecarts de prix</div></div>
+  <div class="card warn"><div class="num">{{ '%.2f'|format(stats.total_ecart_ht) }} €</div><div>Total à réclamer HT</div></div>
+  <div class="card grey"><div class="num">{{ stats.prix_absents }}</div><div>« Je n'ai pas le prix de ça »</div></div>
+</div>
+
+<section>
+  <h2>Gérer un fournisseur &amp; sa liste de prix</h2>
+  <form method="post" action="/suppliers" class="inline">
+    <input name="name" placeholder="Nom du fournisseur (ex : Point.P)" required>
+    <label>Tolérance arrondis (€) <input type="number" step="0.01" name="tolerance" value="0.01" style="width:5em"></label>
+    <button>Ajouter / ouvrir</button>
+  </form>
+  <p class="hint">→ Ensuite : importez la liste de prix (Excel/CSV), puis les factures.</p>
+</section>
+
+<section>
+  <h2>Récapitulatif achats par chantier</h2>
+  <table>
+    <tr><th>Chantier</th><th>Factures</th><th>Total achats HT</th><th>Total écarts HT</th></tr>
+    {% for s in stats.sites %}
+    <tr>
+      <td><a href="/sites/{{ loop.index0 }}">{{ s.site }}</a></td>
+      <td>{{ s.nb_factures }}</td>
+      <td>{{ '%.2f'|format(s.total_achats_ht) }} €</td>
+      <td class="{{ 'neg' if s.total_ecart_ht > 0 else '' }}">{{ '%.2f'|format(s.total_ecart_ht) }} €</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4">Aucun chantier — importez une facture avec un nom de chantier.</td></tr>
+    {% endfor %}
+  </table>
+  <a class="btn" href="/export/chantiers">Exporter le récap chantiers (.xlsx)</a>
+  <a class="btn" href="/export/ecarts">Exporter tous les écarts (.xlsx)</a>
+</section>
+{% endblock %}

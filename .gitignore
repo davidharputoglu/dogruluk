@@ -1,1 +1,7 @@
-*.tar.gz
+__pycache__/
+*.pyc
+.pytest_cache/
+data/*.db
+exports/*
+!exports/.gitkeep
+!data/.gitkeep
