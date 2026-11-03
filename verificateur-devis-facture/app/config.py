@@ -3,12 +3,20 @@
 Le nom / branding de l'application se change en UNE SEULE PLACE :
 la variable APP_NAME ci-dessous (ou la variable d'environnement VDF_APP_NAME).
 
-Deux editions sont prevues (choix utilisateur) :
-  - edition publique  -> nom public   (defaut : "VerifFact")
-  - edition privee    -> nom prive    (defaut : "VerifFact Pro")
-La distinction se fait par la variable d'environnement VDF_EDITION = public|prive.
-L'edition privee active des fonctions supplementaires (import mail, dossier surveille,
-export PDF des ecarts) qui restent desactivees en version publique en v0.1.
+Nom choisi (decision utilisateur) : **Dogruluk** — mot turc signifiant
+« exactitude / droiture / verification de ce qui est juste » (racine dogru = correct).
+Nom volontairement evocateur plutot que descriptif, en rapport avec la fonction
+de controle des prix. Version unique et PUBLIQUE (decision utilisateur).
+
+Disponibilite verifiee le 2026-11-04 :
+  - DNS : dogruluk.app / .io / .co / .dev / .fr / .net -> NXDOMAIN (libres)
+          dogruluk.com / .org -> RESOLVED (pris)
+  - GitHub : kasparof57/dogruluk -> 404 (libre)
+A confirmer aupres d'un registrar (AFNIC/OVH) avant depot definitif.
+
+La variable d'environnement VDF_EDITION = public|prive reste technique
+(import mail / dossier surveille reserve a une eventuelle edition privee future),
+mais seule l'edition publique est diffusee.
 """
 from __future__ import annotations
 
@@ -19,12 +27,13 @@ import os
 # ---------------------------------------------------------------------------
 EDITION = os.environ.get("VDF_EDITION", "public").lower()
 
+# Nom unique, version publique (decision utilisateur 2026-11-04) : Dogruluk / Doğruluk
 if EDITION == "prive":
-    APP_NAME = os.environ.get("VDF_APP_NAME", "VerifFact Pro")
-    APP_TAGLINE = "Verification devis & factures tous fournisseurs - edition privee"
+    APP_NAME = os.environ.get("VDF_APP_NAME", "Doğruluk")
+    APP_TAGLINE = "Vérification des prix, ligne à ligne — édition privée"
 else:
-    APP_NAME = os.environ.get("VDF_APP_NAME", "VerifFact")
-    APP_TAGLINE = "Verification devis & factures tous fournisseurs"
+    APP_NAME = os.environ.get("VDF_APP_NAME", "Doğruluk")
+    APP_TAGLINE = "Vérification devis & factures, tous fournisseurs"
 
 FEATURE_EMAIL_IMPORT = EDITION == "prive"      # a ajouter plus tard (boite mail dediee)
 FEATURE_WATCHED_FOLDER = EDITION == "prive"    # a ajouter plus tard (dossier surveille)

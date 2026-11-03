@@ -1,4 +1,4 @@
-# VerifFact — Vérificateur de devis & factures (v0.1)
+# Doğruluk — Vérificateur de devis & factures (v0.1)
 
 Application autonome qui vérifie les factures/devis de **tous fournisseurs**
 (Point.P, etc.) par rapport à une **liste de prix négociés**, calcule les
@@ -42,13 +42,21 @@ et `VDF_AUTHOR_EMAIL` ; visibles dans le pied de page de l'interface, l'API
 - **Excel / CSV des écarts** par facture ou par chantier → à envoyer au
   fournisseur pour demander un **avoir**.
 
-## Deux éditions (une seule ligne à changer)
+## Nom & édition
 
-Le nom/appearance se règlent dans `app/config.py` (ou variables d'env) :
+**Doğruluk** (turc : « exactitude, droiture » — racine *doğru*, « correct ») :
+nom évocateur du contrôle des prix, sans être littéral.
+Décision utilisateur : **version unique, publique**.
 
-- Édition **publique** : `VDF_APP_NAME=VerifPublique`
-- Édition **privée** : `VDF_APP_NAME=VerifPrivee` + fonctionnalités avancées
-  (imports mail/dossier surveillé à venir).
+Disponibilité vérifiée le 2026-11-04 : domaines `dogruluk.app/.io/.co/.dev/.fr/.net`
+libres au DNS (`.com`/`.org` pris), GitHub `kasparof57/dogruluk` libre.
+À confirmer chez un registrar (AFNIC/OVH) avant dépôt définitif.
+
+Le nom se règle dans `app/config.py` ou via variable d'environnement :
+
+```bash
+VDF_APP_NAME=Doğruluk   # valeur par défaut
+```
 
 Autres variables : `VDF_DATA_DIR`, `VDF_EXPORT_DIR`, `VDF_TOLERANCE`.
 
