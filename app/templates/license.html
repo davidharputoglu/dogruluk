@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ t("license") }} — {{ APP_DISPLAY_NAME }}{% endblock %}
+{% block content %}
+<h1>{{ t("license") }}</h1>
+
+<section>
+  <p>{{ t("lb_license_intro", {"version": VERSION, "year": YEAR, "name": EDITOR_NAME, "license": LICENSE}) }}</p>
+  <p>{{ t("lb_license_body") }}</p>
+  <p class="warnbox">{{ t("lb_disclaimer") }}</p>
+</section>
+
+<p class="hint">{{ t("lb_last_update", {"date": "2026-11-05"}) }} —
+<a href="/mentions-legales">{{ t("legal_mentions") }}</a> ·
+<a href="/confidentialite">{{ t("privacy") }}</a></p>
+{% endblock %}

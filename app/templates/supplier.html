@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ sup.name }} <span class="muted">(tolérance {{ sup.tolerance }} €)</span></h1>
+
+<section>
+  <h2>Importer la liste de prix (Excel / CSV)</h2>
+  <form method="post" action="/suppliers/{{ sup.id }}/price-list" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".xlsx,.xls,.csv" required>
+    <button>Importer</button>
+  </form>
+  <p class="hint">Colonnes reconnues : code article, désignation, unité, prix HT (prix négocié/convenu).</p>
+</section>
+
+<section>
+  <h2>Articles sans prix de référence — « je n'ai pas le prix de ça »</h2>
+  {% if missing %}
+  <table>
+    <tr><th>Code</th><th>Désignation</th><th>Unité</th><th>Prix facturé vu</th><th>Fois</th><th>Compléter le prix</th></tr>
+    {% for m in missing %}
+    <tr>
+      <td>{{ m.code }}</td><td>{{ m.designation }}</td><td>{{ m.unit }}</td>
+      <td>{{ '%.2f'|format(m.last_price_seen or 0) }} €</td><td>{{ m.occurrences }}</td>
+      <td>
+        <form method="post" action="/suppliers/{{ sup.id }}/prices" class="inline">
+          <input type="hidden" name="code" value="{{ m.code }}">
+          <input type="hidden" name="designation" value="{{ m.designation }}">
+          <input type="hidden" name="unit" value="{{ m.unit }}">
+          <input type="number" step="0.0001" name="price_ht" placeholder="Prix convenu" required style="width:8em">
+          <button>Ajouter</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p class="hint">Dès qu'un prix est ajouté ici, les factures contenant cet article sont re-vérifiées automatiquement.</p>
+  {% else %}<p class="hint">Aucun article en attente. 🎉</p>{% endif %}
+</section>
+
+<section>
+  <h2>Factures &amp; devis de {{ sup.name }}</h2>
+  <form method="post" action="/suppliers/{{ sup.id }}/invoices" enctype="multipart/form-data" class="grid-form">
+    <input type="file" name="file" accept=".xlsx,.xls,.csv,.pdf,.xml,.jpg,.jpeg,.png" required>
+    <input name="site" placeholder="Chantier (ex : Maison Durand - cuisine)">
+    <select name="doc_type"><option value="facture">Facture</option><option value="devis">Devis</option></select>
+    <input name="number" placeholder="N° facture (auto si Factur-X/UBL)">
+    <input name="date" placeholder="Date (AAAA-MM-JJ, auto si possible)">
+    <button>Importer &amp; vérifier</button>
+  </form>
+  <p class="hint">Formats : Excel/CSV, Factur-X / UBL / CII (facture électronique), PDF (saisie assistée), scan/photo (OCR v0.2).</p>
+  <table>
+    <tr><th>Type</th><th>N°</th><th>Date</th><th>Chantier</th><th>Format</th><th>Total HT</th><th>Vérifiée</th><th></th></tr>
+    {% for i in invoices %}
+    <tr>
+      <td>{{ i.doc_type }}</td><td>{{ i.number }}</td><td>{{ i.date }}</td>
+      <td>{{ i.site or '—' }}</td><td><span class="badge">{{ i.format }}</span></td>
+      <td>{{ '%.2f'|format(i.total_ht) }} €</td><td>{{ i.verified_at or '—' }}</td>
+      <td><a href="/invoices/{{ i.id }}">Voir l'écart →</a></td>
+    </tr>
+    {% else %}<tr><td colspan="7">Aucune facture importée.</td></tr>{% endfor %}
+  </table>
+</section>
+
+<section>
+  <h2>Liste de prix ({{ n_prices }} articles affichés)</h2>
+  <form method="post" action="/suppliers/{{ sup.id }}/prices" class="grid-form">
+    <input name="code" placeholder="Code article" required>
+    <input name="designation" placeholder="Désignation">
+    <input name="unit" placeholder="U" style="width:5em">
+    <input type="number" step="0.0001" name="price_ht" placeholder="Prix HT" required>
+    <button>Ajouter / corriger</button>
+  </form>
+  <table>
+    <tr><th>Code</th><th>Désignation</th><th>Unité</th><th>Prix HT</th><th>Source</th></tr>
+    {% for p in prices %}
+    <tr><td>{{ p.code }}</td><td>{{ p.designation }}</td><td>{{ p.unit }}</td>
+        <td>{{ '%.4f'|format(p.price_ht) }} €</td><td>{{ p.source }}</td></tr>
+    {% endfor %}
+  </table>
+</section>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ t("privacy") }} — {{ APP_DISPLAY_NAME }}{% endblock %}
+{% block content %}
+<h1>{{ t("privacy") }}</h1>
+
+<section>
+  <p>{{ t("lb_privacy") }}</p>
+  <ul>
+    <li>{{ t("lb_data_local") }}</li>
+    <li>{{ t("lb_data_none_sent") }}</li>
+    <li>{{ t("lb_rgpd") }}</li>
+  </ul>
+</section>
+
+<section>
+  <h2>{{ t("legal_cookies") }}</h2>
+  <p>{{ t("lb_cookies") }}</p>
+</section>
+
+<p class="hint">{{ t("lb_last_update", {"date": "2026-11-05"}) }} —
+<a href="/mentions-legales">{{ t("legal_mentions") }}</a> ·
+<a href="/licence">{{ t("license") }}</a></p>
+{% endblock %}
