@@ -32,6 +32,13 @@ FEATURE_PDF_EXPORT = True                      # export PDF des ecarts
 
 VERSION = "0.1.0"
 
+# ---------------------------------------------------------------------------
+# Crédits / contact (modifiables via variables d'environnement)
+# ---------------------------------------------------------------------------
+AUTHOR_NAME = os.environ.get("VDF_AUTHOR_NAME", "David HARPUTOGLU")
+AUTHOR_EMAIL = os.environ.get("VDF_AUTHOR_EMAIL", "kasparof57@gmail.com")
+AUTHOR_CREDIT = f"{AUTHOR_NAME} — aidé par IA"
+
 # Base SQLite (fichier unique, compatible Raspberry Pi 3 ARM/ARM64)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.environ.get("VDF_DATA_DIR", os.path.join(BASE_DIR, "data"))

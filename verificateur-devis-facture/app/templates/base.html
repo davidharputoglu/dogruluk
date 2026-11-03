@@ -22,6 +22,8 @@
 <main>
 {% block content %}{% endblock %}
 </main>
-<footer>{{ APP_NAME }} v{{ VERSION }} — edition {{ EDITION }} — devis &amp; factures, tous fournisseurs</footer>
+<footer>{{ APP_NAME }} v{{ VERSION }} — edition {{ EDITION }} — devis &amp; factures, tous fournisseurs<br>
+  Crédits : <a href="mailto:{{ AUTHOR_EMAIL }}">{{ AUTHOR_CREDIT }}</a> — contact : <a href="mailto:{{ AUTHOR_EMAIL }}">{{ AUTHOR_EMAIL }}</a>
+</footer>
 </body>
 </html>

@@ -4,6 +4,13 @@ Application autonome qui vérifie les factures/devis de **tous fournisseurs**
 (Point.P, etc.) par rapport à une **liste de prix négociés**, calcule les
 **écarts** et fait le **récapitulatif des achats par chantier**.
 
+## Crédits
+
+**David HARPUTOGLU** — aidé par IA — contact : kasparof57@gmail.com
+(Nom et e-mail modifiables via les variables d'environnement `VDF_AUTHOR_NAME`
+et `VDF_AUTHOR_EMAIL` ; visibles dans le pied de page de l'interface, l'API
+`GET /api/info` et les exports Excel des écarts.)
+
 ## Règles implémentées (issues des 2 audios WhatsApp)
 
 1. **Liste de prix de référence** : on importe la liste de prix du fournisseur ;

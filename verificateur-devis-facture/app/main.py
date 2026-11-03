@@ -8,7 +8,7 @@ from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse, JSON
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from .config import APP_NAME, APP_TAGLINE, EDITION, VERSION, HOST, PORT, FEATURE_EMAIL_IMPORT, FEATURE_WATCHED_FOLDER
+from .config import APP_NAME, APP_TAGLINE, EDITION, VERSION, HOST, PORT, FEATURE_EMAIL_IMPORT, FEATURE_WATCHED_FOLDER, AUTHOR_NAME, AUTHOR_EMAIL, AUTHOR_CREDIT
 from .db import init_db, get_db
 from .services import importing, exporting
 from .services.verification import verify_invoice, upsert_price_item, global_stats
@@ -20,6 +20,8 @@ app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), na
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 templates.env.globals.update(APP_NAME=APP_NAME, APP_TAGLINE=APP_TAGLINE,
                              VERSION=VERSION, EDITION=EDITION,
+                             AUTHOR_NAME=AUTHOR_NAME, AUTHOR_EMAIL=AUTHOR_EMAIL,
+                             AUTHOR_CREDIT=AUTHOR_CREDIT,
                              FEATURE_EMAIL_IMPORT=FEATURE_EMAIL_IMPORT,
                              FEATURE_WATCHED_FOLDER=FEATURE_WATCHED_FOLDER)
 
@@ -176,6 +178,13 @@ def export_chantiers():
 @app.get("/api/stats")
 def api_stats():
     return global_stats()
+
+
+@app.get("/api/info")
+def api_info():
+    return {"app": APP_NAME, "version": VERSION, "edition": EDITION,
+            "author": AUTHOR_NAME, "email": AUTHOR_EMAIL,
+            "credit": AUTHOR_CREDIT}
 
 
 def run():

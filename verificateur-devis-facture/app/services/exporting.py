@@ -68,6 +68,9 @@ def export_discrepancies_xlsx(supplier_id=None, site_id=None) -> str:
         trow = len(rows) + 1
         ws.write(trow, 10, "TOTAL PRETENDS RECLAMER HT :", bold)
         ws.write_number(trow, 11, round(total, 2), red)
+        # Crédits / contact (demande d'avoir)
+        from ..config import AUTHOR_NAME, AUTHOR_EMAIL
+        ws.write(trow + 2, 0, f"Document prepare par {AUTHOR_NAME} (aidé par IA) - contact : {AUTHOR_EMAIL}")
         wb.close()
         return path
     except ImportError:
